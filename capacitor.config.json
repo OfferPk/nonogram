@@ -1,0 +1,11 @@
+{
+  "appId": "com.offerpk.nonogram",
+  "appName": "Quillpix",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#f6f3ec"
+  },
+  "plugins": {
+    "AdMob": {}
+  }
+}

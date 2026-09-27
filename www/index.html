@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f3ec">
+  <meta name="description" content="Quillpix: a calm, offline nonogram (picture logic puzzle) game with 348 hand-checked puzzles, a daily puzzle, colour reveals, stats and dark mode.">
+  <title>Quillpix – Calm Nonogram</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="theme-paper">
+  <div id="app">
+    <!-- HOME -->
+    <section id="home" class="screen">
+      <div class="home-top">
+        <div class="home-coins"><span class="coin-ico"></span><span class="coins-val">0</span></div>
+      </div>
+      <div class="logo">
+        <canvas class="logo-mark" id="logo-mark" width="148" height="148" aria-hidden="true"></canvas>
+        <h1>Quillpix</h1>
+        <p class="tag">calm nonogram</p>
+      </div>
+      <div id="daily-card" class="daily-card" role="button" tabindex="0">
+        <div class="dc-left">
+          <div class="dc-kicker">DAILY PUZZLE</div>
+          <div class="dc-date" id="daily-date">—</div>
+          <div class="dc-sub" id="daily-sub">10×10</div>
+        </div>
+        <div class="dc-right" id="daily-state">Play</div>
+      </div>
+      <div class="home-actions">
+        <button id="btn-continue" class="btn primary big hidden"><span>Continue</span><small id="continue-sub">Garden · 0:00</small></button>
+        <button id="btn-play" class="btn big"><span>Puzzles</span><small id="play-sub">0 / 348 solved</small></button>
+      </div>
+      <div class="home-row">
+        <button id="btn-stats" class="btn plate">Statistics</button>
+        <button id="btn-shop" class="btn plate">Themes</button>
+        <button id="btn-settings-home" class="btn plate">Settings</button>
+      </div>
+      <a class="home-link" href="privacy.html">Privacy policy</a>
+    </section>
+
+    <!-- PACKS -->
+    <section id="packs" class="screen hidden">
+      <header class="topbar">
+        <button class="icon-btn back" data-back="home" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15.5 4.5 8 12l7.5 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <h2 class="bar-title">Puzzle packs</h2>
+        <div class="top-coins"><span class="coin-ico"></span><span class="coins-val">0</span></div>
+      </header>
+      <div class="scroll"><div id="pack-list" class="pack-list"></div></div>
+    </section>
+
+    <!-- ONE PACK -->
+    <section id="pack" class="screen hidden">
+      <header class="topbar">
+        <button class="icon-btn back" data-back="packs" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15.5 4.5 8 12l7.5 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <h2 class="bar-title" id="pack-title">Garden</h2>
+        <span class="bar-sub" id="pack-count">0/30</span>
+      </header>
+      <div class="scroll"><p class="pack-desc" id="pack-desc"></p><div id="pack-grid" class="pack-grid"></div></div>
+    </section>
+
+    <!-- GAME -->
+    <section id="game" class="screen hidden">
+      <header class="topbar">
+        <button id="btn-home" class="icon-btn" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15.5 4.5 8 12l7.5 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="gstat"><span class="lbl" id="g-pack">Garden</span><b id="g-size">10×10</b></div>
+        <div class="gstat"><span class="lbl">Lives</span><b id="g-lives" class="lives">♥♥♥</b></div>
+        <div class="gstat timer"><span class="lbl">Time</span><b id="g-time">0:00</b></div>
+        <button id="btn-pause" class="icon-btn" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z" fill="currentColor"/></svg></button>
+      </header>
+      <div id="stage">
+        <div id="board" class="board" aria-label="Nonogram board">
+          <div id="corner" class="corner"><canvas id="preview" width="60" height="60"></canvas></div>
+          <div id="colstrip" class="strip colstrip"><div id="colclues" class="colclues"></div></div>
+          <div id="rowstrip" class="strip rowstrip"><div id="rowclues" class="rowclues"></div></div>
+          <div id="gridvp" class="gridvp"><div id="grid" class="grid"></div></div>
+        </div>
+      </div>
+      <div class="tools">
+        <button id="t-undo" class="tool" aria-label="Undo"><svg viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M4.5 12H15a5 5 0 0 1 0 10h-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -3)"/></svg><span>Undo</span></button>
+        <button id="t-redo" class="tool" aria-label="Redo"><svg viewBox="0 0 24 24"><path d="M15 7l5 5-5 5M19.5 12H9a5 5 0 0 0 0 10h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 -3)"/></svg><span>Redo</span></button>
+        <div class="modes" role="radiogroup" aria-label="Input mode">
+          <button id="m-fill" class="mode on" role="radio" aria-checked="true" aria-label="Fill"><i class="sq"></i></button>
+          <button id="m-cross" class="mode" role="radio" aria-checked="false" aria-label="Cross out"><i class="x">✕</i></button>
+        </div>
+        <button id="t-zoom" class="tool" aria-label="Zoom"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5M7.5 10.5h6M10.5 7.5v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span id="zoom-lbl">Zoom</span></button>
+        <button id="t-hint" class="tool rewarded" aria-label="Hint: reveal a line"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><span>Hint</span><em class="ad-badge">▶ AD</em></button>
+      </div>
+      <div id="banner-slot" aria-hidden="true"></div>
+    </section>
+
+    <!-- PAUSE -->
+    <div id="pause" class="overlay hidden">
+      <div class="panel center">
+        <div class="kicker">PAUSED</div>
+        <h2 id="pause-time">0:00</h2>
+        <p id="pause-sub">Garden · 10×10</p>
+        <div class="panel-actions col">
+          <button id="btn-resume" class="btn primary big"><span>Resume</span></button>
+          <button id="btn-restart" class="btn plate">Restart puzzle</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPLETE -->
+    <div id="complete" class="overlay hidden">
+      <div class="panel center">
+        <div class="kicker" id="c-kicker">PUZZLE SOLVED</div>
+        <canvas id="c-art" class="c-art" width="240" height="240"></canvas>
+        <h2 id="c-title">Tulip</h2>
+        <div class="stats3">
+          <div><b id="c-time">0:00</b><span>time</span></div>
+          <div><b id="c-best">0:00</b><span>best</span></div>
+          <div><b id="c-coins">+0</b><span>coins</span></div>
+        </div>
+        <p class="note" id="c-note"></p>
+        <div class="panel-actions col">
+          <button id="btn-c-next" class="btn primary big"><span>Next puzzle</span><small id="c-next-sub">Garden</small></button>
+          <button id="btn-c-home" class="btn plate">Home</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUT OF LIVES -->
+    <div id="outl" class="overlay hidden">
+      <div class="panel center">
+        <div class="kicker">NO LIVES LEFT</div>
+        <h2>Take a breath</h2>
+        <p>Three mistakes this time. Your marks are kept, so you can carry on with an extra life or start the picture again.</p>
+        <div class="panel-actions col">
+          <button id="btn-extra" class="btn plate rewarded">Extra life &amp; continue <em class="ad-badge">▶ Watch ad</em></button>
+          <button id="btn-o-restart" class="btn primary big"><span>Restart puzzle</span></button>
+          <button id="btn-o-home" class="btn plate">Home</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIRM -->
+    <div id="confirm" class="overlay hidden">
+      <div class="panel">
+        <h3 id="confirm-title">Restart?</h3>
+        <p id="confirm-text">Your marks will be cleared.</p>
+        <div class="panel-actions">
+          <button id="confirm-no" class="btn plate">Cancel</button>
+          <button id="confirm-yes" class="btn primary">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div id="stats" class="overlay hidden">
+      <div class="panel wide">
+        <div class="panel-head"><h3>Statistics</h3><button class="icon-btn close" data-close="stats" aria-label="Close">✕</button></div>
+        <div id="stats-body" class="stats-grid"></div>
+        <div id="stats-sizes" class="size-table"></div>
+        <div class="daily-stats" id="daily-stats"></div>
+      </div>
+    </div>
+
+    <!-- SHOP -->
+    <div id="shop" class="overlay hidden">
+      <div class="panel wide">
+        <div class="panel-head"><h3>Themes</h3><div class="top-coins"><span class="coin-ico"></span><span class="coins-val">0</span></div><button class="icon-btn close" data-close="shop" aria-label="Close">✕</button></div>
+        <p class="note">Cosmetic only. Earn coins by solving puzzles. Dark mode (Midnight) is always free.</p>
+        <div id="shop-grid" class="shop-grid"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="settings" class="overlay hidden">
+      <div class="panel">
+        <div class="panel-head"><h3>Settings</h3><button class="icon-btn close" data-close="settings" aria-label="Close">✕</button></div>
+        <label class="row"><span>Mistake mode (3 lives)<small>Wrong marks are corrected and cost a life. Off = free mode. Applies to new puzzles.</small></span><input type="checkbox" id="set-mistakes"><i class="sw"></i></label>
+        <label class="row"><span>Auto-cross finished lines</span><input type="checkbox" id="set-autox"><i class="sw"></i></label>
+        <label class="row"><span>Highlight row &amp; column</span><input type="checkbox" id="set-hl"><i class="sw"></i></label>
+        <label class="row"><span>Show timer</span><input type="checkbox" id="set-timer"><i class="sw"></i></label>
+        <label class="row"><span>Sound effects</span><input type="checkbox" id="set-sound"><i class="sw"></i></label>
+        <label class="row"><span>Haptics</span><input type="checkbox" id="set-haptics"><i class="sw"></i></label>
+        <div class="panel-actions col">
+          <button id="btn-howto" class="btn plate">How to play</button>
+          <a class="btn plate" href="privacy.html">Privacy policy</a>
+          <button id="btn-privacy-options" class="btn plate hidden">Ad privacy options</button>
+          <button id="btn-reset" class="btn plate danger">Reset statistics &amp; progress</button>
+        </div>
+        <p class="ver">Quillpix v1.0.0 · © OfferPk</p>
+      </div>
+    </div>
+
+    <!-- HOW TO PLAY -->
+    <div id="howto" class="overlay hidden">
+      <div class="panel">
+        <div class="panel-head"><h3>How to play</h3><button class="icon-btn close" data-close="howto" aria-label="Close">✕</button></div>
+        <p>Each number is a run of filled squares in that row or column, in order, with at least one gap between runs. <b>3 1</b> means three filled, a gap, then one filled.</p>
+        <p><b>Tap</b> to fill a square. Switch to <b>✕</b> to mark squares you know are empty. <b>Drag</b> along a row or column to mark a whole line at once.</p>
+        <p>Clues turn grey when they're done. Every puzzle can be solved with logic alone, no guessing, and reveals a colour picture.</p>
+        <p>Big grids: pinch to zoom and pan with two fingers, or use the Zoom button.</p>
+        <div class="panel-actions"><button class="btn primary" data-close="howto">Got it</button></div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+  </div>
+
+  <script src="js/ads-config.js"></script>
+  <script src="js/adgate.js"></script>
+  <script src="js/ads.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="js/puzzles.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

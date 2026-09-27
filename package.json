@@ -1,0 +1,25 @@
+{
+  "name": "nonogram",
+  "version": "1.0.0",
+  "description": "Quillpix: offline calm nonogram (picture logic puzzles) in vanilla JS with 300+ line-solver-verified puzzles, a daily puzzle, Capacitor Android build and AdMob.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "serve": "npx --yes http-server www -p 8080 -c-1",
+    "build:puzzles": "node tools/build-puzzles.js",
+    "test": "node test/logic.test.js && node test/puzzles.test.js && node test/input.test.js && node test/adgate.test.js",
+    "sync": "npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor-community/admob": "8.1.0",
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/haptics": "^8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
