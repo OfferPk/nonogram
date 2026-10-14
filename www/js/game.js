@@ -134,7 +134,9 @@
   $('btn-continue').addEventListener('click', function () { sfx('click'); if (startPuzzle(save.current)) go('game'); });
   function openDaily() { sfx('click'); if (startPuzzle('daily-' + L.dateKey())) go('game'); }
   $('daily-card').addEventListener('click', openDaily);
-  $('daily-card').addEventListener('keydown', function (e) { if (e.key === 'Enter') openDaily(); });
+  $('daily-card').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); openDaily(); }
+  });
 
   // ---------------- packs ----------------
   var curPack = null;
