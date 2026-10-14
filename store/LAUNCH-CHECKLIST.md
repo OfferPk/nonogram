@@ -1,3 +1,5 @@
+> **v1.1 update:** real AdMob IDs now go into GitHub secrets and the on-demand **Play Store build** workflow checks them. Follow [`LAUNCH_CHECKLIST.md`](../LAUNCH_CHECKLIST.md) in the repo root for that part. The v1.1 listing text is in [`LISTING-v1.1.md`](LISTING-v1.1.md).
+
 # Launch checklist: Quillpix on Google Play (new personal account)
 
 ## Roman Urdu mein khulasa (short summary)

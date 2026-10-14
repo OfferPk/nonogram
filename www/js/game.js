@@ -15,7 +15,7 @@
   // ---------------- save ----------------
   function defaults() {
     return {
-      v: 1, coins: 0, owned: ['paper', 'midnight'], theme: 'paper',
+      v: 1, coins: 0, owned: ['paper', 'midnight'], theme: 'paper', ink: 'solid', ownedInk: [], trial: {},
       settings: { mistakes: true, autox: true, hl: true, timer: true, sound: true, haptics: true },
       solved: {}, progress: {}, current: null,
       stats: { solved: 0, flawless: 0, totalMs: 0, hints: 0, mistakes: 0, sizes: {} },
@@ -40,6 +40,7 @@
   var cfg = window.ADS_CONFIG || {};
   var gate = window.AdGate.create(cfg, save.ad);
   save.ad = gate.state;
+  gate.startSession(); persist(); // v1.1: no interstitial in the first session
 
   // ---------------- helpers ----------------
   function haptic() { if (!save.settings.haptics) return; try { var H = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics; if (H) H.impact({ style: 'LIGHT' }); else if (navigator.vibrate) navigator.vibrate(8); } catch (e) {} }
@@ -93,10 +94,10 @@
     if (st.s === 'pack' && !curPack) st.s = 'packs';
     show(st.s);
   });
-  var OVERLAYS = ['pause', 'complete', 'outl', 'confirm', 'stats', 'shop', 'settings', 'howto'];
-  function closeOverlays() { OVERLAYS.forEach(function (o) { $(o).classList.add('hidden'); }); document.body.classList.remove('paused'); }
+  var OVERLAYS = ['pause', 'complete', 'outl', 'confirm', 'stats', 'shop', 'settings', 'howto', 'daily', 'achievements'];
+  function closeOverlays() { OVERLAYS.forEach(function (o) { var e = $(o); if (e) e.classList.add('hidden'); }); document.body.classList.remove('paused'); }
   function openOverlay(id) { $(id).classList.remove('hidden'); }
-  document.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', function () { $(b.getAttribute('data-close')).classList.add('hidden'); sfx('click'); if (b.getAttribute('data-close') === 'shop' || b.getAttribute('data-close') === 'settings') refreshCoins(); }); });
+  document.querySelectorAll('[data-close]').forEach(function (b) { b.addEventListener('click', function () { $(b.getAttribute('data-close')).classList.add('hidden'); sfx('click'); if (b.getAttribute('data-close') === 'shop' || b.getAttribute('data-close') === 'settings') refreshCoins(); if (b.getAttribute('data-close') === 'shop' && window.ShopCore && window.ShopCore.endPreview()) applyTheme(); if (b.getAttribute('data-close') === 'howto' && screen === 'game' && window.Meta && window.Meta.runCoach) window.Meta.runCoach(false); }); });
   document.querySelectorAll('[data-back]').forEach(function (b) { b.addEventListener('click', function () { sfx('click'); back(); }); });
 
   // ---------------- home ----------------
@@ -621,6 +622,10 @@
     $('c-next-sub').textContent = nx ? (BY_ID[nx].pack.name + ' · ' + sizeKey(BY_ID[nx].p)) : 'All puzzles solved!';
     $('btn-c-next').disabled = !nx;
     drawArt($('c-art'), G.p);
+    if (window.Meta && window.Meta.win) {
+      try { window.Meta.win({ id: G.id, daily: !!G.p.daily, flawless: flawless, clean: flawless, first: first, size: Math.max(G.w, G.h), cells: G.w * G.h, ms: ms, stars: 0 }); } catch (e) { console.warn(e); }
+      refreshCoins();
+    }
     var delay = (G.w + G.h) * 28 + 900;
     setTimeout(function () { if (G && G.done && screen === 'game') openOverlay('complete'); }, delay);
   }
@@ -666,39 +671,53 @@
 
   // ---------------- themes ----------------
   function applyTheme() {
-    document.body.className = document.body.className.replace(/theme-\S+/g, '').trim() + ' theme-' + save.theme;
+    var SC = window.ShopCore, th = SC && SC.current ? SC.current(save, 'theme', 'theme') : save.theme, ink = SC && SC.current ? SC.current(save, 'ink', 'ink') : save.ink;
+    document.body.className = document.body.className.replace(/(theme|ink)-\S+/g, '').trim() + ' theme-' + th + (ink && ink !== 'solid' ? ' ink-' + ink : '');
     if (!(window.Ads && window.Ads.isNative())) document.body.classList.add('web');
     document.body.classList.toggle('no-timer', !save.settings.timer);
     var meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', cssVar('--bg') || '#f6f3ec');
     drawLogo();
     if (G && screen === 'game') drawPreview();
   }
-  function renderShop() {
-    var g = $('shop-grid'); g.innerHTML = '';
-    window.THEMES.forEach(function (t) {
-      var owned = save.owned.indexOf(t.id) >= 0, it = document.createElement('div');
-      it.className = 'item' + (save.theme === t.id ? ' selected' : ''); it.setAttribute('data-theme', t.id);
-      var prev = document.createElement('div'); prev.className = 'prev'; prev.style.background = t.swatch[0];
-      var mini = document.createElement('div'); mini.className = 'mini'; mini.style.borderColor = t.swatch[1];
-      var pat = [1, 1, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 0, 0, 1, 2];
-      pat.forEach(function (v) { var i = document.createElement('i'); if (v === 1) i.style.background = t.swatch[2]; if (v === 2) i.style.background = 'transparent'; mini.appendChild(i); });
-      prev.appendChild(mini);
-      var nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = t.name + (t.dark ? ' · dark' : '');
-      var btn = document.createElement('button'); btn.className = 'buy';
-      if (save.theme === t.id) btn.textContent = 'In use';
-      else if (owned) { btn.textContent = 'Use'; btn.classList.add('can'); }
-      else { btn.innerHTML = '<span class="coin-ico"></span>' + t.price; if (save.coins >= t.price) btn.classList.add('can'); }
-      btn.addEventListener('click', function () {
-        if (save.theme === t.id) return;
-        if (!owned) {
-          if (save.coins < t.price) { toast('Solve more puzzles to earn ' + (t.price - save.coins) + ' more coins'); return; }
-          save.coins -= t.price; save.owned.push(t.id); sfx('coin');
-        } else sfx('click');
-        save.theme = t.id; persist(); applyTheme(); refreshCoins(); renderShop();
-      });
-      it.appendChild(prev); it.appendChild(nm); it.appendChild(btn); g.appendChild(it);
-    });
+  var INKS = [
+    { id: 'solid', name: 'Solid Ink', price: 0 }, { id: 'round', name: 'Soft Tiles', price: 120 }, { id: 'bevel', name: 'Bevel', price: 200 },
+    { id: 'dot', name: 'Dots', price: 250 }, { id: 'stitch', name: 'Stitched', price: 300 }, { id: 'hatch', name: 'Pen Hatch', price: 400 }
+  ];
+  function themeThumb(t) {
+    var w = document.createElement('div'); w.style.cssText = 'width:100%;height:100%;display:grid;place-items:center;border-radius:10px;background:' + t.swatch[0];
+    var mini = document.createElement('div'); mini.className = 'mini'; mini.style.borderColor = t.swatch[1];
+    [1, 1, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 0, 0, 1, 2].forEach(function (v) { var i = document.createElement('i'); if (v === 1) i.style.background = t.swatch[2]; if (v === 2) i.style.background = 'transparent'; mini.appendChild(i); });
+    w.appendChild(mini); return w;
   }
+  function inkThumb(it) {
+    var w = document.createElement('div'); w.className = 'ink-prev ink-' + it.id;
+    [1, 1, 0, 0, 1, 1, 1, 0, 1].forEach(function (v) { var c = document.createElement('div'); c.className = 'c' + (v ? ' f' : ''); w.appendChild(c); });
+    return w;
+  }
+  function renderShop() {
+    if (!save.trial || typeof save.trial !== 'object') save.trial = {};
+    if (!Array.isArray(save.ownedInk)) save.ownedInk = [];
+    window.ShopCore.render({
+      grid: $('shop-grid'), save: save,
+      groups: [
+        { title: 'Themes', kind: 'theme', field: 'theme', owned: save.owned, items: window.THEMES.map(function (t) { return { id: t.id, name: t.name + (t.dark ? ' · dark' : ''), price: t.price, swatch: t.swatch }; }), thumb: themeThumb },
+        { title: 'Ink styles', kind: 'ink', field: 'ink', owned: save.ownedInk, items: INKS, thumb: inkThumb }
+      ],
+      apply: function () { applyTheme(); refreshCoins(); if (window.Meta && window.Meta.ach) { var a = window.Meta.ach(); if (a) a.sync(); } },
+      persist: persist, toast: toast, sfx: sfx,
+      rewarded: function (ok, fail) { window.Ads.showRewarded(ok, fail); },
+      needMsg: function (n) { return 'Solve more puzzles to earn ' + n + ' more coins'; }
+    });
+    tagShopItems();
+    refreshCoins();
+  }
+  // ShopCore re-renders the grid after every tap; keep stable data-theme / data-ink hooks on the items
+  function tagShopItems() {
+    var items = $('shop-grid').querySelectorAll('.item');
+    window.THEMES.forEach(function (t, i) { if (items[i] && items[i].getAttribute('data-theme') !== t.id) items[i].setAttribute('data-theme', t.id); });
+    INKS.forEach(function (t, i) { var e = items[window.THEMES.length + i]; if (e && e.getAttribute('data-ink') !== t.id) e.setAttribute('data-ink', t.id); });
+  }
+  if (window.MutationObserver) new MutationObserver(tagShopItems).observe($('shop-grid'), { childList: true });
   $('btn-shop').addEventListener('click', function () { sfx('click'); refreshCoins(); renderShop(); openOverlay('shop'); });
 
   // ---------------- settings ----------------
@@ -736,6 +755,10 @@
   // test / debug hook (used by the headless browser test)
   window.__qp = {
     get game() { return G; }, get save() { return save; }, get gate() { return gate; }, get view() { return view; },
-    L: L, D: D, nextPuzzleId: nextPuzzleId
+    L: L, D: D, nextPuzzleId: nextPuzzleId,
+    // v1.1 meta wiring
+    toast: toast, sfx: sfx, persist: persist, refreshCoins: refreshCoins, openDaily: openDaily, applyTheme: applyTheme,
+    openPacks: function () { go('packs'); }, startPuzzle: function (id) { if (startPuzzle(id)) go('game'); }, get screen() { return screen; },
+    solvedCount: solvedCount, total: TOTAL
   };
 })();

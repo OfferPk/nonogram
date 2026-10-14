@@ -22,5 +22,6 @@ window.ADS_CONFIG = {
   INTERSTITIAL_MIN_PUZZLES: 5,            // never before 5 solved puzzles ...
   INTERSTITIAL_MIN_PLAY_MS: 3 * 60000,  // ... AND at least 3 minutes of total play
   INTERSTITIAL_EVERY_N_PUZZLES: 3,        // then at most one every 3 solved puzzles
-  INTERSTITIAL_MIN_INTERVAL_MS: 90000   // and at most one per 90 s (puzzle-complete transition only)
+  INTERSTITIAL_MIN_INTERVAL_MS: 90000,  // and at most one per 90 s (puzzle-complete transition only)
+  INTERSTITIAL_MIN_SESSIONS: 2          // and never during the player's first session
 };

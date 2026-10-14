@@ -8,7 +8,8 @@ const CFG = sandbox.window.ADS_CONFIG;
 let pass = 0, fail = 0;
 function t(name, fn) { try { fn(); pass++; console.log('  ok -', name); } catch (e) { fail++; console.log('  FAIL -', name, '\n   ', e.message); } }
 const MIN = 60000;
-const fresh = () => AdGate.create(CFG, {});
+// v1.1: interstitials are never shown in the first session; most rules below are tested from session 2 on
+const fresh = () => { const g = AdGate.create(CFG, {}); g.startSession(); g.startSession(); return g; };
 
 console.log('adgate.test.js');
 t('shipped config: 5 puzzles, 3 min, every 3 puzzles, 90 s', () => {
@@ -16,6 +17,14 @@ t('shipped config: 5 puzzles, 3 min, every 3 puzzles, 90 s', () => {
   assert.strictEqual(CFG.INTERSTITIAL_EVERY_N_PUZZLES, 3); assert.strictEqual(CFG.INTERSTITIAL_MIN_INTERVAL_MS, 90000);
 });
 t('never on a fresh install (launch)', () => assert.strictEqual(fresh().canShow(Date.now()), false));
+t('never during the first session, however much is played', () => {
+  const g = AdGate.create(CFG, {}); g.startSession();
+  for (let i = 0; i < 50; i++) { g.puzzleCompleted(); g.addPlayTime(30000); }
+  assert.strictEqual(g.canShow(1e12), false);
+  g.startSession(); assert.strictEqual(g.canShow(1e12), true);
+  const legacy = AdGate.create(CFG, { puzzlesCompleted: 40, playMs: 1e7, puzzlesSince: 9, lastTs: 0 }); legacy.startSession();
+  assert.strictEqual(legacy.canShow(1e12), false, 'upgrading players get one ad-free session too');
+});
 t('not before 5 solved puzzles even with lots of play time', () => {
   const g = fresh(); g.addPlayTime(30000); for (let i = 0; i < 40; i++) g.addPlayTime(30000);
   for (let i = 0; i < 4; i++) { g.puzzleCompleted(); assert.strictEqual(g.canShow(1e12), false, 'puzzle ' + (i + 1)); }
@@ -80,9 +89,13 @@ t('game.js asks for an interstitial in exactly one place: leaving the puzzle-com
   // the back button / history handler never calls it
   const pop = game.slice(game.indexOf("addEventListener('popstate'"), game.indexOf("addEventListener('popstate'") + 400); assert.ok(!/leaveComplete|maybeInterstitial/.test(pop));
 });
-t('rewarded ads only from the Hint and Extra-life buttons', () => {
+t('rewarded ads only from taps: Hint, Extra-life, and the shop "Try 24h" button', () => {
   const game = require('fs').readFileSync(__dirname + '/../www/js/game.js', 'utf8');
-  assert.strictEqual((game.match(/Ads\.showRewarded\(/g) || []).length, 2);
+  assert.strictEqual((game.match(/Ads\.showRewarded\(/g) || []).length, 3);
+  // v1.1: the shop passes a rewarded adapter to ShopCore, which only calls it from the Try button's click handler
+  const sh = game.indexOf('function renderShop()'); assert.ok(sh > 0 && game.indexOf('Ads.showRewarded(', sh) - sh < 1600);
+  const core = require('fs').readFileSync(__dirname + '/../www/js/shopcore.js', 'utf8');
+  assert.ok(/t\.addEventListener\('click', function \(\) \{\s*o\.sfx\('click'\);\s*o\.rewarded\(/.test(core));
   const h = game.indexOf("$('t-hint').addEventListener"), x = game.indexOf("$('btn-extra').addEventListener");
   assert.ok(h > 0 && x > 0 && game.indexOf('Ads.showRewarded(', h) - h < 200 && game.indexOf('Ads.showRewarded(', x) - x < 200);
 });

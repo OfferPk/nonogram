@@ -43,8 +43,9 @@ function base(theme, extra) {
   const shot = async n => { await sleep(400); await page.screenshot({ path: `${OUT}/${n}.png` }); console.log('shot', n); };
   async function load(save, open) {
     await page.goto(URL + 'privacy.html', { waitUntil: 'networkidle0' });
-    await page.evaluate((k, s) => localStorage.setItem(k, JSON.stringify(s)), KEY, save);
+    await page.evaluate((k, s) => { localStorage.setItem(k, JSON.stringify(s)); localStorage.setItem('quillpix.meta.v1.coach', '1'); }, KEY, save);
     await page.goto(URL, { waitUntil: 'networkidle0' }); await sleep(300);
+    await page.addStyleTag({ content: '#toast { display: none !important; }' }); // no transient toasts in store art
     if (open === 'continue') { await page.tap('#btn-continue'); await sleep(700); }
   }
   // 1) paper: 15x15 garden puzzle in progress (clues greying out, crosses)
@@ -74,6 +75,18 @@ function base(theme, extra) {
   { await load(base('paper')); await page.tap('#btn-stats'); await sleep(400); await shot('8-stats'); }
   // 9) themes
   { await load(base('blush', { owned: ['paper', 'midnight', 'sage', 'dusk', 'blush'], coins: 260 })); await page.tap('#btn-shop'); await sleep(500); await shot('9-themes'); }
+  // v1.1: 10) Daily reward calendar + daily challenge
+  { await page.evaluate(() => localStorage.removeItem('quillpix.meta.v1.daily'));
+    await load(base('paper')); await page.tap('#btn-daily'); await sleep(300); await page.tap('.daily-claim'); await sleep(2400); await shot('10-rewards'); }
+  // 11) shop: themes + ink styles, with Soft Tiles ink in use
+  { await load(base('sage', { coins: 520, ink: 'round', ownedInk: ['round', 'dot'] })); await page.tap('#btn-shop'); await sleep(400);
+    await page.evaluate(() => { const g = document.querySelector('#shop [data-ink]'); g.scrollIntoView({ block: 'start' }); g.closest('.panel').scrollTop -= 40; }); await shot('11-shop'); }
+  // 12) a puzzle in progress with an ink style (dots) on the midnight theme
+  { const id = 'garden-18', s = base('midnight', { ink: 'dot', ownedInk: ['dot'] }); delete s.solved[id]; s.progress[id] = progress(id, [0, 1, 2, 3, 4, 12, 13, 14], [0, 1, 2, 13, 14], 312000, [96, 97, 98]); s.current = id;
+    await load(s, 'continue'); await shot('12-ink'); }
+  // 13) achievements
+  { await load(base('paper')); await page.evaluate(() => { const a = window.Meta.ach(); a.bump('wins', 31); a.bump('clean_wins', 12); a.bump('dailies', 4); a.bump('big', 2); }); await sleep(5200);
+    await page.tap('#btn-awards'); await sleep(500); await shot('13-awards'); }
   console.log('errors:', errors);
   await browser.close();
 })();

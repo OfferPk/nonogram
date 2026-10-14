@@ -30,12 +30,12 @@ def font(path, size, style=None):
 CAPTIONS = [
     ('01', '2-reveal', 'Watch the picture bloom', 'Solve the grid and it reveals itself in colour'),
     ('02', '1-playing', 'Pure logic, no guessing', 'Every puzzle has one solution you can reason out'),
-    ('03', '4-packs', '348 hand-made puzzles', 'Eleven themed packs, from 5x5 to 20x20'),
-    ('04', '6-dark-zoom', 'Big grids, easy zoom', 'Pinch to zoom and pan. Clues follow along'),
-    ('05', '7-home', 'A new puzzle every day', 'A daily picture that works fully offline'),
-    ('06', '3-complete', 'Calm, not rushed', 'Timer, best times and a gentle mistake mode'),
-    ('07', '8-stats', 'See yourself improve', 'Solved puzzles, streaks and best times'),
-    ('08', '9-themes', 'Five quiet themes', 'Unlock with coins you earn. Cosmetic only'),
+    ('03', '10-rewards', 'Daily rewards and challenges', 'A 7-day reward calendar and a new goal every day'),
+    ('04', '4-packs', '348 hand-made puzzles', 'Eleven themed packs, from 5x5 to 20x20'),
+    ('05', '11-shop', 'Make it yours', 'Themes and ink styles. Cosmetic coins only'),
+    ('06', '13-awards', 'Achievements to collect', 'Plus your stats, streaks and best times'),
+    ('07', '12-ink', 'Dark mode, your way', 'Midnight is free. Add dots, tiles and more'),
+    ('08', '3-complete', 'Calm, not rushed', 'Timer, best times and a gentle mistake mode'),
 ]
 
 

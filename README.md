@@ -48,6 +48,14 @@ A calm, **offline nonogram** (picture logic puzzle, also called picross or gridd
 - A calm, adult (13+) look: soft paper and ink colours, serif title, gentle animations, **WebAudio** synthesized sounds (no audio files) and light **haptics** via `@capacitor/haptics`. Android back button follows the screen hierarchy (browser history). Keyboard on the web: Ctrl+Z / Ctrl+Y, X toggles fill/cross, mouse wheel zoom/pan.
 - No build step: open `www/index.html` or serve the folder.
 
+### v1.1 extras (`www/js/metakit.js` + `www/js/meta-config.js`, separate save `quillpix.meta.v1`)
+
+- **Daily reward** (7-day streak calendar) and a seeded **Daily challenge** (same for everyone each day), on the home screen's **Rewards** button.
+- **Shop**: the 5 themes plus 6 **ink styles** (the shape of filled squares; the colour never changes). Tap a preview to try it; a rewarded ad (only from a tap) unlocks a 24 h trial.
+- **Achievements + Stats** (Awards button), a skippable **first-puzzle tutorial** after the how-to card (replayable from Settings).
+- **Accessibility**: reduce motion (follows the OS until changed), larger text, high contrast.
+- Coins stay **cosmetic only**: earned by playing, never sold, never cashed out; no loot boxes, no betting.
+
 ## Project layout
 
 ```
@@ -95,7 +103,7 @@ PUPPETEER=puppeteer-core node test/browser.test.js http://localhost:8080/ /tmp  
 
 Interstitial pacing, enforced in `www/js/adgate.js` and tested in `test/adgate.test.js`:
 
-- **None** until the player has solved **5 puzzles** *and* played for **3 minutes** in total (timer running).
+- **None** during the player's **first session** (`INTERSTITIAL_MIN_SESSIONS: 2`), and none until the player has solved **5 puzzles** *and* played for **3 minutes** in total (timer running).
 - After that, at most **one every 3 solved puzzles** and at most **one per 90 s**, only on the puzzle-complete transition. If an ad isn't ready, the game simply continues.
 - **Never** on launch, exit, back press or mid-puzzle. There are no app-open ads, and the pacing state is saved so restarting the app doesn't reset it.
 
@@ -143,10 +151,10 @@ ANDROID_KEYSTORE_FILE=/path/upload.jks KEYSTORE_PASSWORD=... KEY_ALIAS=upload KE
 
 ## Releasing to Google Play
 
-See **[`store/LAUNCH-CHECKLIST.md`](store/LAUNCH-CHECKLIST.md)** (it opens with a Roman Urdu summary), [`store/listing-en.md`](store/listing-en.md) and [`store/play-console-answers.md`](store/play-console-answers.md).
+See **[`LAUNCH_CHECKLIST.md`](LAUNCH_CHECKLIST.md)** (secrets + the on-demand **Play Store build** workflow, which fails if a test or placeholder ID would ship), **[`store/LAUNCH-CHECKLIST.md`](store/LAUNCH-CHECKLIST.md)** (it opens with a Roman Urdu summary), [`store/LISTING-v1.1.md`](store/LISTING-v1.1.md), [`store/listing-en.md`](store/listing-en.md) and [`store/play-console-answers.md`](store/play-console-answers.md).
 
 1. Bump `versionCode` (+1 every upload) and `versionName`, and switch to your real AdMob IDs.
-2. `git tag v1.0.1 && git push origin v1.0.1`. CI attaches `nonogram-v1.0.1.aab` and `.apk` to a Release.
+2. `git tag v1.1.0 && git push origin v1.1.0`. CI attaches `nonogram-v1.1.0.aab` and `.apk` to a Release.
 3. Upload the `.aab` in Play Console with **Play App Signing** turned on. The CI keystore is your **upload key**.
 
 ## License

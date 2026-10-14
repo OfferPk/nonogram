@@ -16,6 +16,8 @@ const assert = (c, m) => { if (!c) throw new Error('ASSERT: ' + m); console.log(
   const page = await browser.newPage();
   await page.emulate({ viewport: { width: 360, height: 640, deviceScaleFactor: 3, isMobile: true, hasTouch: true },
     userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129 Mobile Safari/537.36' });
+  // v1.1 first-puzzle coach is covered by test/meta.browser.test.js; mark it seen here.
+  await page.evaluateOnNewDocument(() => { try { localStorage.setItem('quillpix.meta.v1.coach', '1'); } catch (e) {} });
   const errors = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
@@ -113,13 +115,15 @@ const assert = (c, m) => { if (!c) throw new Error('ASSERT: ' + m); console.log(
   await sleep(1400);
   assert(await visible('#complete'), 'complete screen after the reveal');
   await page.screenshot({ path: `${OUT}/qp-complete.png` });
-  const s1 = await page.evaluate(() => ({ solved: window.__qp.save.solved['first-01'], coins: window.__qp.save.coins, pc: window.__qp.gate.state.puzzlesCompleted, prog: window.__qp.save.progress['first-01'], sz: window.__qp.save.stats.sizes['5×5'] }));
-  assert(s1.solved && !s1.prog && s1.coins === L.coinsFor(5, 5) && s1.pc === 1 && s1.sz.n === 1 && s1.sz.best > 0, 'stats + best time, +' + L.coinsFor(5, 5) + ' coins, ad gate counted 1 puzzle, saved game cleared');
+  const s1 = await page.evaluate(() => ({ solved: window.__qp.save.solved['first-01'], coins: window.__qp.save.coins, pc: window.__qp.gate.state.puzzlesCompleted, prog: window.__qp.save.progress['first-01'], sz: window.__qp.save.stats.sizes['5×5'],
+    // v1.1: achievement + daily-challenge coins are added on top of the puzzle's own coins
+    bonus: (() => { const a = window.Meta.ach(), st = a.state(); return a.defs.filter(d => st.done[d.id]).reduce((n, d) => n + d.reward, 0) + (window.Meta.daily().isDone() ? 25 : 0); })() }));
+  assert(s1.solved && !s1.prog && s1.coins === L.coinsFor(5, 5) + s1.bonus && s1.bonus >= 15 && s1.pc === 1 && s1.sz.n === 1 && s1.sz.best > 0, 'stats + best time, +' + L.coinsFor(5, 5) + ' coins, ad gate counted 1 puzzle, saved game cleared');
   assert(await page.evaluate(() => window.__qp.gate.canShow(Date.now())) === false, 'no interstitial before 5 puzzles + 3 minutes');
   await page.tap('#btn-c-home'); await sleep(500);
   assert(await visible('#home') && (await page.$eval('#play-sub', e => e.textContent)).startsWith('1 /'), 'home shows 1 solved');
   await page.reload({ waitUntil: 'networkidle0' }); await sleep(300);
-  assert((await page.$eval('#play-sub', e => e.textContent)).startsWith('1 /') && (await page.$eval('.coins-val', e => e.textContent)) === String(L.coinsFor(5, 5)), 'solved picture and coins persist after reload');
+  assert((await page.$eval('#play-sub', e => e.textContent)).startsWith('1 /') && (await page.$eval('.coins-val', e => e.textContent)) === String(s1.coins), 'solved picture and coins persist after reload');
 
   // ---- hint (rewarded; granted immediately on web) ----
   await page.tap('#btn-play'); await sleep(250); await page.tap('[data-pack="first"]'); await sleep(250);

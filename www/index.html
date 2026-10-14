@@ -8,7 +8,8 @@
   <title>Quillpix – Calm Nonogram</title>
   <link rel="icon" type="image/png" href="icon.png">
   <link rel="apple-touch-icon" href="icon.png">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="css/meta.css">
 </head>
 <body class="theme-paper">
   <div id="app">
@@ -36,8 +37,12 @@
       </div>
       <div class="home-row">
         <button id="btn-stats" class="btn plate">Statistics</button>
-        <button id="btn-shop" class="btn plate">Themes</button>
+        <button id="btn-shop" class="btn plate">Shop</button>
         <button id="btn-settings-home" class="btn plate">Settings</button>
+      </div>
+      <div class="home-row">
+        <button id="btn-daily" class="btn plate">Rewards<i id="daily-dot" class="hidden" aria-hidden="true"></i></button>
+        <button id="btn-awards" class="btn plate">Awards</button>
       </div>
       <a class="home-link" href="privacy.html">Privacy policy</a>
     </section>
@@ -163,8 +168,8 @@
     <!-- SHOP -->
     <div id="shop" class="overlay hidden">
       <div class="panel wide">
-        <div class="panel-head"><h3>Themes</h3><div class="top-coins"><span class="coin-ico"></span><span class="coins-val">0</span></div><button class="icon-btn close" data-close="shop" aria-label="Close">✕</button></div>
-        <p class="note">Cosmetic only. Earn coins by solving puzzles. Dark mode (Midnight) is always free.</p>
+        <div class="panel-head"><h3>Shop</h3><div class="top-coins"><span class="coin-ico"></span><span class="coins-val">0</span></div><button class="icon-btn close" data-close="shop" aria-label="Close">✕</button></div>
+        <p class="note">Cosmetic only. Earn coins by solving puzzles. Dark mode (Midnight) is always free. Tap a preview to try it, or watch an ad to try any item free for 24 hours.</p>
         <div id="shop-grid" class="shop-grid"></div>
       </div>
     </div>
@@ -185,7 +190,7 @@
           <button id="btn-privacy-options" class="btn plate hidden">Ad privacy options</button>
           <button id="btn-reset" class="btn plate danger">Reset statistics &amp; progress</button>
         </div>
-        <p class="ver">Quillpix v1.0.0 · © OfferPk</p>
+        <p class="ver">Quillpix v1.1.0 · © OfferPk</p>
       </div>
     </div>
 
@@ -204,6 +209,10 @@
     <div id="toast" class="toast hidden"></div>
   </div>
 
+  <div id="sr-live" class="sr-only" aria-live="polite"></div>
+  <script src="js/sr.js"></script>
+  <script src="js/a11y.js"></script>
+  <script src="js/shopcore.js"></script>
   <script src="js/ads-config.js"></script>
   <script src="js/adgate.js"></script>
   <script src="js/ads.js"></script>
@@ -212,5 +221,12 @@
   <script src="js/sound.js"></script>
   <script src="js/themes.js"></script>
   <script src="js/game.js"></script>
+  <script src="js/daily.js"></script>
+  <script src="js/achievements.js"></script>
+  <script src="js/coach.js"></script>
+  <script src="js/review.js"></script>
+  <script src="js/ach-defs.js"></script>
+  <script src="js/metakit.js"></script>
+  <script src="js/meta-config.js"></script>
 </body>
 </html>
