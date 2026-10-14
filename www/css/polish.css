@@ -1,0 +1,193 @@
+/* Quillpix interface polish: editorial warmth, clearer hierarchy, and resilient layouts. */
+:root {
+  --focus-ring: #315f9e;
+  --surface-glass: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+
+html { min-width: 320px; }
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse at 12% 8%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 32rem),
+    radial-gradient(ellipse at 92% 92%, color-mix(in srgb, var(--fill) 6%, transparent), transparent 30rem);
+}
+button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+:where(button, a, input, [role="button"], [tabindex]):focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* Home: a calm, centered landing panel with enough room to scroll on short screens. */
+#home {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  gap: clamp(14px, 2.5vh, 21px);
+  padding: calc(var(--sat) + 30px) 22px calc(var(--sab) + 24px);
+}
+#home::before {
+  content: "";
+  position: absolute;
+  inset: 10% 7% 8%;
+  z-index: -1;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--line) 48%, transparent);
+  border-radius: 36px;
+  mask-image: linear-gradient(to bottom, transparent, #000 15%, #000 85%, transparent);
+}
+.home-top { top: calc(var(--sat) + 16px); right: max(18px, calc((100vw - 440px) / 2)); }
+.home-coins, .top-coins {
+  min-height: 36px;
+  padding: 5px 12px 5px 7px;
+  box-shadow: 0 4px 14px var(--shadow);
+  backdrop-filter: blur(12px);
+}
+.logo-mark {
+  width: clamp(68px, 10vw, 82px);
+  height: auto;
+  aspect-ratio: 1;
+  margin-bottom: 9px;
+  border: 1px solid color-mix(in srgb, var(--line) 75%, transparent);
+  border-radius: 22px;
+  box-shadow: 0 10px 28px var(--shadow), 0 1px 0 color-mix(in srgb, var(--surface) 80%, transparent) inset;
+}
+.logo h1 {
+  font-size: clamp(42px, 8vw, 54px);
+  letter-spacing: .005em;
+  line-height: 1;
+}
+.logo .tag { margin-top: 8px; font-size: 10px; letter-spacing: .26em; }
+.daily-card {
+  width: min(100%, 400px);
+  min-height: 82px;
+  padding: 15px 16px;
+  border-radius: 18px;
+  text-align: left;
+  box-shadow: 0 8px 24px var(--shadow), 0 1px 0 color-mix(in srgb, var(--surface) 85%, transparent) inset;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.daily-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: 0 12px 28px var(--shadow); }
+.daily-card:active { transform: translateY(0); }
+.dc-kicker { letter-spacing: .17em; font-size: 10px; }
+.dc-date { font-size: 19px; letter-spacing: -.02em; }
+.dc-right { min-width: 78px; text-align: center; padding: 9px 14px; box-shadow: 0 3px 9px color-mix(in srgb, var(--accent) 22%, transparent); }
+.home-actions, .home-row { width: min(100%, 400px); }
+.home-actions { gap: 9px; }
+.home-actions .btn.big { min-height: 60px; border-radius: 16px; }
+.home-actions .btn.primary { background: linear-gradient(145deg, color-mix(in srgb, var(--accent) 86%, white), var(--accent)); }
+.home-row { gap: 9px; }
+.home-row .btn { min-height: 44px; border-radius: 13px; }
+.home-row .btn:hover, .btn.plate:hover { border-color: color-mix(in srgb, var(--accent) 42%, var(--line)); background: color-mix(in srgb, var(--surface) 84%, var(--accent)); }
+.home-link { padding: 5px 10px; border-radius: 8px; transition: color .18s ease; }
+.home-link:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+/* Shared controls and browse screens. */
+.btn { min-height: 44px; border-radius: 13px; transition: transform .16s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; }
+.btn.primary { box-shadow: 0 7px 18px color-mix(in srgb, var(--accent) 23%, transparent); }
+.btn.primary:hover { box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 30%, transparent); filter: saturate(1.05); }
+.icon-btn { width: 44px; height: 44px; border-radius: 14px; transition: background .16s ease, transform .16s ease; }
+.icon-btn:hover { background: var(--hl); }
+.topbar { min-height: 58px; gap: 8px; padding: 8px 14px 5px; }
+.bar-title { font-size: 24px; letter-spacing: -.015em; }
+.scroll { padding: 8px 16px calc(var(--sab) + 28px); }
+.pack-list { max-width: 560px; gap: 12px; }
+.pack-card {
+  min-height: 82px;
+  border-radius: 18px;
+  padding: 13px 15px;
+  transition: transform .17s ease, border-color .17s ease, box-shadow .17s ease;
+}
+.pack-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: 0 8px 20px var(--shadow); }
+.pack-card canvas { width: 60px; height: 60px; border-radius: 13px; }
+.pack-card .pc-name { letter-spacing: -.01em; }
+.pack-card .bar { height: 6px; }
+.pack-grid { max-width: 580px; gap: clamp(8px, 2vw, 12px); }
+.tile { border-radius: 16px; transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease; }
+.tile:hover { transform: translateY(-2px); box-shadow: 0 8px 18px var(--shadow); }
+
+/* Puzzle screen: distinct HUD and tactile tool dock, while preserving board sizing. */
+#game { background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 46%, transparent), transparent 34%); }
+#game .topbar {
+  z-index: 2;
+  min-height: 62px;
+  padding: 8px 12px 6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 62%, transparent);
+  background: var(--surface-glass);
+  backdrop-filter: blur(14px);
+}
+.gstat { padding: 4px 7px; }
+.gstat .lbl { font-size: 10px; letter-spacing: .1em; }
+.gstat b { font-size: 15px; }
+#stage { padding: 10px 10px 12px; }
+.grid { border-radius: 6px; box-shadow: 0 10px 30px var(--shadow); }
+.tools {
+  position: relative;
+  z-index: 2;
+  width: min(540px, calc(100% - 20px));
+  min-height: 72px;
+  gap: 4px;
+  padding: 7px 8px;
+  margin-bottom: 6px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface-glass);
+  box-shadow: 0 8px 24px var(--shadow);
+  backdrop-filter: blur(14px);
+}
+.tool { min-width: 48px; min-height: 54px; border-radius: 13px; transition: background .16s ease, color .16s ease; }
+.tool:hover { background: var(--hl); color: var(--ink); }
+.tool svg { width: 24px; height: 24px; }
+.modes { flex: none; padding: 3px; gap: 3px; border-radius: 14px; }
+.mode { width: 44px; height: 44px; border-radius: 11px; }
+.mode.on { box-shadow: 0 2px 7px var(--shadow), 0 0 0 1px color-mix(in srgb, var(--line) 70%, transparent); }
+
+/* Dialogs, settings, and dense content. */
+.overlay { padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
+.panel {
+  width: min(390px, 100%);
+  max-height: min(88vh, 820px);
+  padding: clamp(18px, 4vw, 24px);
+  border-radius: 22px;
+  box-shadow: 0 24px 64px var(--shadow);
+}
+.panel.wide { width: min(480px, 100%); }
+.panel-head { gap: 12px; margin-bottom: 12px; }
+.panel h3 { letter-spacing: -.015em; }
+.panel p { line-height: 1.55; }
+.row { min-height: 54px; }
+.row:focus-within .sw { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.toast { border: 1px solid color-mix(in srgb, var(--bg) 30%, transparent); box-shadow: 0 10px 24px var(--shadow); }
+
+@media (min-width: 760px) {
+  #home { gap: 20px; }
+  .home-actions, .home-row, .daily-card { width: min(400px, 100%); }
+  .scroll { padding-left: 24px; padding-right: 24px; }
+  .pack-list { max-width: 640px; }
+}
+@media (max-height: 700px) {
+  #home { justify-content: flex-start; gap: 12px; padding-top: calc(var(--sat) + 68px); padding-bottom: calc(var(--sab) + 18px); }
+  .logo-mark { width: 58px; margin-bottom: 5px; border-radius: 17px; }
+  .logo h1 { font-size: 40px; }
+  .daily-card { min-height: 72px; padding-block: 11px; }
+  .home-actions .btn.big { min-height: 54px; padding-block: 10px; }
+  .home-row .btn { min-height: 40px; padding-block: 8px; }
+}
+@media (max-width: 380px) {
+  #home { padding-left: 16px; padding-right: 16px; }
+  .home-row { gap: 6px; }
+  .home-row .btn { font-size: 13px; }
+  .tools { width: calc(100% - 12px); gap: 1px; padding-inline: 5px; }
+  .tool { min-width: 42px; font-size: 11px; }
+  .mode { width: 40px; }
+  .panel { padding: 18px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  #home { gap: 8px; padding-top: calc(var(--sat) + 54px); }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-mark { width: 48px; margin: 0; border-radius: 14px; }
+  .logo .tag { display: none; }
+  .daily-card { min-height: 60px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
